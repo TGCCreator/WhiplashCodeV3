@@ -1,34 +1,19 @@
 #include "main.h"
 
-/////
-// For installation, upgrading, documentations, and tutorials, check out our website!
-// https://ez-robotics.github.io/EZ-Template/
-/////
-
 // Chassis constructor
 ez::Drive chassis(
-    // These are your drive motors, the first motor is used for sensing!
-    {18, 19, 20},     // Left Chassis Ports (negative port will reverse it!)
-    {11, 12, 13},  // Right Chassis Ports (negative port will reverse it!)
+    {-20, -15, -16},     // Left Chassis Ports
+    {14, 12, 18},  // Right Chassis Ports
 
-    9,      // IMU Port
-    3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
-    360);   // Wheel RPM = cartridge * (motor gear / wheel gear)
+    1,      // IMU
+    3.25, // Wheel Diameter
+    450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
-// Uncomment the trackers you're using here!
-// - `8` and `9` are smart ports (making these negative will reverse the sensor)
-//  - you should get positive values on the encoders going FORWARD and RIGHT
-// - `2.75` is the wheel diameter
-// - `4.0` is the distance from the center of the wheel to the center of the robot
-ez::tracking_wheel horiz_tracker(14, 2, 5);  // This tracking wheel is perpendicular to the drive wheels
-ez::tracking_wheel vert_tracker(15, 2, 2.5);   // This tracking wheel is parallel to the drive wheels
+// Making 8 and 9 negative will reverse the sensor
+// Port, Wheel Diameter, Distance to Center
+ez::tracking_wheel horiz_tracker(-9, 2, 2.5);  // Perpendicular
+ez::tracking_wheel vert_tracker(17, 2, 0.5);   // Parallel
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
 void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
@@ -38,11 +23,11 @@ void initialize() {
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
   //  - ignore this if you aren't using a horizontal tracker
-  // chassis.odom_tracker_back_set(&horiz_tracker);
+  chassis.odom_tracker_back_set(&horiz_tracker);
   // Look at your vertical tracking wheel and decide if it's to the left or right of the center of the robot
   //  - change `left` to `right` if the tracking wheel is to the right of the centerline
   //  - ignore this if you aren't using a vertical tracker
-  // chassis.odom_tracker_left_set(&vert_tracker);
+  chassis.odom_tracker_left_set(&vert_tracker);
 
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(false);   // Enables modifying the controller curve with buttons on the joysticks
@@ -53,13 +38,17 @@ void initialize() {
   default_constants();
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
-  // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
-  // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
+
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-    {"BlueSidePositiveAuton", BlueRight},
-
+    //{"Left", Left},
+    {"Right", Right},
+    //{"QuickLeft", QuickLeft},
+    //{"QuickRight", QuickRight},
+    //{"StatesSkills", StatesSkills},
+    //{"Skills", Skills},
+    //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp_because_winning_our_way_through_matches_is_pointless_with_people_like_riptide_and_bentc_against_us_and_oracle_btw}
 });
 
   // Initialize chassis and auton selector
@@ -108,19 +97,6 @@ void autonomous() {
   chassis.odom_xyt_set(0_in, 0_in, 0_deg);    // Set the current position, you can start at a specific position with this
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  /*
-  Odometry and Pure Pursuit are not magic
-
-  It is possible to get perfectly consistent results without tracking wheels,
-  but it is also possible to have extremely inconsistent results without tracking wheels.
-  When you don't use tracking wheels, you need to:
-   - avoid wheel slip
-   - avoid wheelies
-   - avoid throwing momentum around (super harsh turns, like in the example below)
-  You can do cool curved motions, but you have to give your robot the best chance
-  to be consistent
-  */
-
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 }
 
@@ -137,11 +113,6 @@ void screen_print_tracker(ez::tracking_wheel *tracker, std::string name, int lin
   ez::screen_print(tracker_value + tracker_width, line);  // Print final tracker text
 }
 
-/**
- * Ez screen task
- * Adding new pages here will let you view them during user control or autonomous
- * and will help you debug problems you're having
- */
 void ez_screen_task() {
   while (true) {
     // Only run this when not connected to a competition switch
@@ -194,27 +165,14 @@ void ez_screen_task() {
     pros::delay(ez::util::DELAY_TIME);
   }
 }
+
 pros::Task ezScreenTask(ez_screen_task);
 
-/**
- * Gives you some extras to run in your opcontrol:
- * - run your autonomous routine in opcontrol by pressing DOWN and B
- *   - to prevent this from accidentally happening at a competition, this
- *     is only enabled when you're not connected to competition control.
- * - gives you a GUI to change your PID values live by pressing X
- */
 void ez_template_extras() {
   // Only run this when not connected to a competition switch
   if (!pros::competition::is_connected()) {
     // PID Tuner
     // - after you find values that you're happy with, you'll have to set them in auton.cpp
-
-    // Enable / Disable PID Tuner
-    //  When enabled:
-    //  * use A and Y to increment / decrement the constants
-    //  * use the arrow keys to navigate the constants
-    if (master.get_digital_new_press(DIGITAL_X))
-      chassis.pid_tuner_toggle();
 
     // Trigger the selected autonomous routine
     if (master.get_digital(DIGITAL_LEFT)) {
@@ -234,71 +192,66 @@ void ez_template_extras() {
   }
 }
 
-/**
- * Runs the operator control code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the operator
- * control mode.
- *
- * If no competition control is connected, this function will run immediately
- * following initialize().
- *
- * If the robot is disabled or communications is lost, the
- * operator control task will be stopped. Re-enabling the robot will restart the
- * task, not resume it from where it left off.
- */
 void opcontrol() {
-  // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-
+  bool romeDaGoat = false;
   while (true) {
-    // Gives you some extras to make EZ-Template ezier
     ez_template_extras();
 
-    // chassis.opcontrol_tank();  // Tank control
-    // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
-    // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
-    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
-    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
+    // chassis.opcontrol_tank();  // Tank
+    chassis.opcontrol_arcade_standard(ez::SPLIT);   // Arcade
+    // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Halo
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped Arcade
+    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
 
+    MatchLoader.button_toggle(master.get_digital(DIGITAL_RIGHT)); 
 
-    // pick correct axes once we test them!
-    int forward = -master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-    int turn    = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-
-    // manual arcade drive mix
-    int left_power  = forward - turn;
-    int right_power = forward + turn;
-
-    chassis.drive_set(left_power, right_power);
-
-    // . . .
-    // Put more user control code here!
-    // . . .
-    MiddleGoalScore.button_toggle(master.get_digital(DIGITAL_Y)); 
+    ScoreSwitcher.button_toggle(master.get_digital(DIGITAL_Y));
     
-    LoaderIntake.button_toggle(master.get_digital(DIGITAL_RIGHT));
-    
+    if (master.get_digital(DIGITAL_B) && !romeDaGoat) {
+
+      romeDaGoat = true;
+
+      DescoreWing.set(false);
+
+
+    } else if (master.get_digital(DIGITAL_B)) {
+
+      romeDaGoat = false;
+ 
+    } else {
+
+      DescoreWing.set(true);
+
+    }
+
+//Hood/Lever Opcontrol
+    if (master.get_digital(DIGITAL_R1)) {
+      Hood.set(true);
+      pros::delay(200);
+      Lever.move_absolute(800,127);
+    }
+    else if (master.get_digital(DIGITAL_R2)) {
+      Hood.set(true);
+      pros::delay(200);
+      Lever.move_absolute(800,64);
+    }
+    else {
+      Hood.set(false);
+      Lever.move_absolute(0,127);
+    }
+
+//Channel Opcontrol
     if (master.get_digital(DIGITAL_L1)) {
-      LowerChannel.move(-127);
+      Channel.move(127);
     } 
     else if (master.get_digital(DIGITAL_L2)) {
-      LowerChannel.move(127);
+      Channel.move(-127);
     } 
     else {
-      LowerChannel.move(0);
+      Channel.move(0);
     }
     
-    if (master.get_digital(DIGITAL_R1)) {
-      UpperChannel.move(-127);
-    } 
-    else if (master.get_digital(DIGITAL_R2)) {
-      UpperChannel.move(127);
-    } 
-    else {
-      UpperChannel.move(0);
-    }
-
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }

@@ -6,7 +6,7 @@
 /////
 
 // These are out of 127
-const int DRIVE_SPEED = 127;
+const int DRIVE_SPEED = 90;
 const int TURN_SPEED = 110;
 const int SWING_SPEED = 127;
 
@@ -15,12 +15,12 @@ const int SWING_SPEED = 127;
 ///
 void default_constants() {
   // P, I, D, and Start I
-  chassis.pid_drive_constants_set(0.67, 0, 0);         // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(2000, 0.0, 0.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(0.3, 0, 0.0);     // Turn in place constants
+  chassis.pid_drive_constants_set(4.9, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_heading_constants_set(6.5, 0.0, 0.0);        // Holds the robot straight while going forward without odom
+  chassis.pid_turn_constants_set(1.2, 0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(1.0, 0.0, 12.0);           // Swing constants
-  chassis.pid_odom_angular_constants_set(1200, 0.0, 2400);    // Angular control for odom motions
-  chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
+  chassis.pid_odom_angular_constants_set(0.1, 0.0, 0);    // Angular control for odom motions
+  chassis.pid_odom_boomerang_constants_set(1, 0.0, 32.5);  // Angular control for boomerang motions
 
   // Exit conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
@@ -377,106 +377,384 @@ void measure_offsets() {
 // Make your own autonomous functions here!
 // . . .
 
-void RedNeg() {
-  HorizOdomUp.set(true);
-  chassis.odom_enable(true);
-  chassis.drive_imu_reset();
-  chassis.pid_targets_reset();
-  chassis.odom_reset();
-  chassis.slew_odom_reenable(true);
-  pros::delay(250);
-  LowerChannel.move(127);
-  chassis.pid_odom_set(16, 70, true);
-  chassis.pid_wait();
-  pros::delay(3000);
-  LowerChannel.move(0);
-  chassis.pid_turn_set(78, 10);
-  chassis.pid_wait();
-  pros::delay(3000);
-  chassis.pid_odom_set(-5, rev, 20);
-  chassis.pid_wait();
-  LowerChannel.move(-127);
-  pros::delay(3000);
-  chassis.pid_odom_set(-40, fwd, 20);
-  chassis.pid_wait();
-  pros::delay(3000);
-  chassis.pid_turn_set(100, 10);
-  chassis.pid_wait();
-  LoaderIntake.set(true);
-  pros::delay(3000);
-  chassis.pid_odom_set(-16, rev, 20);
 
 
-};
-
-void RedPos() {
-  HorizOdomUp.set(true);
-  chassis.odom_enable(true);
-  chassis.drive_imu_reset();
-  chassis.pid_targets_reset();
-  chassis.odom_reset();
-  chassis.slew_odom_reenable(true);
-  pros::delay(250);
-  chassis.pid_drive_set(-0.1,70,true);
-  chassis.pid_wait();
+void QuickLeft(){
+  ScoreSwitcher.set(true);
+  Hood.set(true);
+  Channel.move(127);
+  chassis.pid_drive_set(32.5_in,127);
+  pros::delay(900);
+  MatchLoader.set(true);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(550);
+  chassis.pid_drive_set(12.65,127);
   pros::delay(1000);
-  chassis.pid_turn_set(90_deg, 40);
-  chassis.pid_wait();
-  LoaderIntake.set(true);
-  chassis.pid_drive_set(-1.2_in,50,true);
-  chassis.pid_wait();
-  pros::delay(500);
-  LowerChannel.move(-127);
-  pros::delay(750);
-  LowerChannel.move(0);
-  chassis.pid_drive_set(14, 70, true);
-  chassis.pid_wait();
-  LowerChannel.move(-127);
-  UpperChannel.move(-127);
-  pros::delay(1000);
-  LowerChannel.move(0);
-  UpperChannel.move(0);
-  HorizOdomUp.set(false);
-};
-
-
-void BlueRight() {
-  LowerChannel.move(-127);
-  chassis.drive_set(-70,70);
-  pros::delay(880);
-  chassis.drive_set(17,-17);
-  pros::delay(1100);
-  chassis.drive_set(-57,0);
-  pros::delay(1350);
-  chassis.drive_set(-80,80);
+  chassis.pid_drive_set(-34_in,127);
   pros::delay(800);
-  chassis.drive_set(0,0);
-  pros::delay(750);
-  chassis.drive_set(80,80);
-  pros::delay(1000);
-  chassis.drive_set(-60,60);
+  Lever.move_absolute(800,127);
   pros::delay(1200);
-  chassis.drive_set(0,0);
-  LowerChannel.move(-127);
-  UpperChannel.move(-127);
-
-
-
-};
-
-
-void BlueLeft() {
-  MiddleGoalScore.set(true);
-  chassis.drive_set(80,-80);
+  Lever.move_absolute(0,127);
   pros::delay(800);
-  chassis.drive_set(0,0);
-  pros::delay(2000);
-  chassis.drive_set(-40,0);
-  pros::delay(1050);
-  chassis.drive_set(-40,40);
-  pros::delay(1000);
-  chassis.drive_set(0,0);
-  LowerChannel.move(-127);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(10.5_in,127);
+  pros::delay(850);
+  chassis.pid_turn_set(-135,110);
+  pros::delay(500);
+  MatchLoader.set(false);
+  chassis.pid_drive_set(-15.25_in,127);
+  pros::delay(800);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-22_in,127);
+
+
 
 };
 
+void QuickRight(){
+  ScoreSwitcher.set(true);
+  Channel.move(127);
+  chassis.pid_drive_set(31_in,127);
+  pros::delay(1050);
+  MatchLoader.set(true);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(13.25,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-34_in,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(17.5_in,127);
+  pros::delay(850);
+  chassis.pid_turn_set(45,110);
+  pros::delay(550);
+  MatchLoader.set(false);
+  chassis.pid_drive_set(-21.3_in,127);
+  pros::delay(1000);
+  chassis.pid_turn_set(90,110);
+  pros::delay(600);
+  chassis.pid_drive_set(-23_in,127);
+
+
+
+};
+
+void Left(){
+  ScoreSwitcher.set(true);
+  Channel.move(127);
+  chassis.pid_turn_set(-21,110);
+  pros::delay(450);
+  chassis.pid_drive_set(37_in,127);
+  pros::delay(750);
+  MatchLoader.set(true);
+  pros::delay(300);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(350);
+  chassis.pid_turn_set(-145,110);
+  pros::delay(550);
+  chassis.pid_drive_set(38,127);
+  pros::delay(900);
+  chassis.pid_turn_set(-180,110);
+  pros::delay(500);
+  Hood.set(true);
+  chassis.pid_drive_set(-25,127);
+  pros::delay(800);
+  Lever.move_absolute(1000,127);
+  pros::delay(1600);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(32.5,127);
+  pros::delay(1300);
+  chassis.pid_drive_set(-33,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(10,127);
+  pros::delay(500);
+  chassis.pid_turn_set(135,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-17,127);
+  pros::delay(800);
+  chassis.pid_turn_set(180,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-20,127);
+  };
+
+void Right() {
+  ScoreSwitcher.set(true);
+  Channel.move(127);
+  chassis.pid_turn_set(21,110);
+  pros::delay(450);
+  chassis.pid_drive_set(34_in,127);
+  pros::delay(650);
+  MatchLoader.set(true);
+  pros::delay(300);
+  chassis.pid_turn_set(145,110);
+  pros::delay(550);
+  chassis.pid_drive_set(36,127);
+  pros::delay(880);
+  chassis.pid_turn_set(180,110);
+  pros::delay(500);
+  Hood.set(true);
+  chassis.pid_drive_set(-19,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(30.5,127);
+  pros::delay(1300);
+  chassis.pid_drive_set(-33,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(10,127);
+  pros::delay(500);
+  chassis.pid_turn_set(135,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-15.25_in,127);
+  pros::delay(800);
+  chassis.pid_turn_set(180,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-22_in,127);
+};
+
+void StatesSkills() {
+  ScoreSwitcher.set(true);
+  Channel.move(127);
+  chassis.pid_drive_set(32_in,127);
+  pros::delay(900);
+  MatchLoader.set(true);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(12.4,80);
+  pros::delay(2000);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-15,127);
+  pros::delay(700);
+  Channel.move(-127);
+  pros::delay(400);
+  Channel.move(127);
+  chassis.pid_turn_set(135,110);
+  pros::delay(550);
+  chassis.pid_drive_set(-17.5,127);
+  pros::delay(800);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-74_in,127);
+  pros::delay(1300);
+  chassis.pid_turn_set(180,110);
+  pros::delay(550);
+  chassis.pid_drive_set(11.4,127);
+  pros::delay(800);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-25,127);
+  pros::delay(750);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(5,127);
+  pros::delay(2000);
+  Hood.set(false);
+  chassis.pid_turn_set(-92,110);
+  pros::delay(500);
+  chassis.pid_drive_set(25.5,80);
+  pros::delay(2700);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-33,127);
+  pros::delay(800);
+  Channel.move(-127);
+  pros::delay(200);
+  Channel.move(127);
+  pros::delay(200);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(17,127);
+  pros::delay(800);
+  chassis.pid_turn_set(135,110);
+  pros::delay(600);
+  chassis.pid_drive_set(20,127);
+  pros::delay(900);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(67,127);
+  pros::delay(1200);
+  chassis.pid_turn_set(0,110);
+  pros::delay(500);
+  MatchLoader.set(false);
+  chassis.pid_drive_set(-33.8,127);
+  pros::delay(1000);
+  chassis.pid_turn_set(-90,127);
+  pros::delay(500);
+  chassis.pid_drive_set(-42,127);
+};
+
+void Skills(){
+  ScoreSwitcher.set(true);
+  Channel.move(127);
+  chassis.pid_drive_set(32_in,127);
+  pros::delay(900);
+  MatchLoader.set(true);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(11.7,80);
+  pros::delay(2000);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-15,127);
+  pros::delay(700);
+  chassis.pid_turn_set(135,110);
+  pros::delay(550);
+  chassis.pid_drive_set(-17.5,127);
+  pros::delay(800);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-74_in,127);
+  pros::delay(1300);
+  chassis.pid_turn_set(180,110);
+  pros::delay(550);
+  chassis.pid_drive_set(11.7,127);
+  pros::delay(800);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-25,127);
+  pros::delay(750);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(5,127);
+  pros::delay(650);
+  Hood.set(false);
+  chassis.pid_drive_set(25.5,80);
+  pros::delay(2700);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-33,127);
+  pros::delay(800);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  pros::delay(800);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  chassis.pid_drive_set(13,127);
+  pros::delay(650);
+  chassis.pid_turn_set(0,110);
+  pros::delay(500);
+  Channel.move(-127);
+  Hood.set(false);
+  chassis.pid_drive_set(-94,127);
+  pros::delay(1800);
+  Channel.move(127);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(17.5,127);
+  pros::delay(2700);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-15,127);
+  pros::delay(700);
+  chassis.pid_turn_set(-45,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-17.5,127);
+  pros::delay(800);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-74_in,127);
+  pros::delay(1300);
+  chassis.pid_turn_set(0,110);
+  pros::delay(550);
+  chassis.pid_drive_set(11.7,127);
+  pros::delay(800);
+  chassis.pid_turn_set(90,110);
+  pros::delay(500);
+  chassis.pid_drive_set(-25,127);
+  pros::delay(750);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  pros::delay(800);  
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  pros::delay(800);
+  chassis.pid_drive_set(5,127);
+  pros::delay(650);
+  Hood.set(false);
+  chassis.pid_drive_set(25.5,80);
+  pros::delay(2700);
+  chassis.pid_drive_set(-4,127);
+  pros::delay(500);
+  chassis.pid_drive_set(6.5,127);
+  pros::delay(900);
+  chassis.pid_drive_set(-33,127);
+  pros::delay(800);
+  Hood.set(true);
+  pros::delay(200);
+  Lever.move_absolute(800,127);
+  pros::delay(1200);
+  Lever.move_absolute(0,127);
+  MatchLoader.set(false);
+  chassis.pid_drive_set(13_in,127);
+  pros::delay(700);
+  chassis.pid_turn_set(0,110);
+  pros::delay(550);
+  chassis.pid_drive_set(45,127);
+  pros::delay(1200);
+  chassis.pid_turn_set(-90,110);
+  pros::delay(550);
+  chassis.pid_drive_set(-50,127);
+  };
+
+void If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp_because_winning_our_way_through_matches_is_pointless_with_people_like_riptide_and_bentc_against_us_and_oracle_btw(){
+  chassis.pid_drive_set(8.5_in,127);
+  Channel.move(127);
+
+};
+
+
+
+
+
+
+
+
+//                                                                                                                                                                                                                                                                                   None of you guys will see this because I am the only coder so I wanted to say I love you all and I will be secretly working on the notebook everyday of April and writing my pid testing autons. If you find this I will be astounded
