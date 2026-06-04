@@ -1,9 +1,8 @@
 #include "main.h"
 
-// Chassis constructor
 ez::Drive chassis(
-    {-20, -15, -16},     // Left Chassis Ports
-    {14, 12, 18},  // Right Chassis Ports
+    {-20, -15, -16}, // Left
+    {14, 12, 18}, // Right
 
     1,      // IMU
     3.25, // Wheel Diameter
@@ -79,17 +78,6 @@ void competition_initialize() {
   // . . .
 }
 
-/**
- * Runs the user autonomous code. This function will be started in its own task
- * with the default priority and stack size whenever the robot is enabled via
- * the Field Management System or the VEX Competition Switch in the autonomous
- * mode. Alternatively, this function may be called in initialize or opcontrol
- * for non-competition testing purposes.
- *
- * If the robot is disabled or communications is lost, the autonomous task
- * will be stopped. Re-enabling the robot will restart the task, not re-start it
- * from where it left off.
- */
 void autonomous() {
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
@@ -175,7 +163,7 @@ void ez_template_extras() {
     // - after you find values that you're happy with, you'll have to set them in auton.cpp
 
     // Trigger the selected autonomous routine
-    if (master.get_digital(DIGITAL_LEFT)) {
+    if (master.get_digital(DIGITAL_LEFT) and master.get_digital(DIGITAL_Y)){
       pros::motor_brake_mode_e_t preference = chassis.drive_brake_get();
       autonomous();
       chassis.drive_brake_set(preference);
@@ -194,7 +182,6 @@ void ez_template_extras() {
 
 void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-  bool romeDaGoat = false;
   while (true) {
     ez_template_extras();
 
@@ -204,54 +191,6 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped Arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
 
-    MatchLoader.button_toggle(master.get_digital(DIGITAL_RIGHT)); 
-
-    ScoreSwitcher.button_toggle(master.get_digital(DIGITAL_Y));
-    
-    if (master.get_digital(DIGITAL_B) && !romeDaGoat) {
-
-      romeDaGoat = true;
-
-      DescoreWing.set(false);
-
-
-    } else if (master.get_digital(DIGITAL_B)) {
-
-      romeDaGoat = false;
- 
-    } else {
-
-      DescoreWing.set(true);
-
-    }
-
-//Hood/Lever Opcontrol
-    if (master.get_digital(DIGITAL_R1)) {
-      Hood.set(true);
-      pros::delay(200);
-      Lever.move_absolute(800,127);
-    }
-    else if (master.get_digital(DIGITAL_R2)) {
-      Hood.set(true);
-      pros::delay(200);
-      Lever.move_absolute(800,64);
-    }
-    else {
-      Hood.set(false);
-      Lever.move_absolute(0,127);
-    }
-
-//Channel Opcontrol
-    if (master.get_digital(DIGITAL_L1)) {
-      Channel.move(127);
-    } 
-    else if (master.get_digital(DIGITAL_L2)) {
-      Channel.move(-127);
-    } 
-    else {
-      Channel.move(0);
-    }
-    
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }

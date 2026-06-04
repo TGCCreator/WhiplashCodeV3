@@ -1,18 +1,11 @@
 #include "main.h"
 #include "EZ-Template/util.hpp"
-/////
-// For installation, upgrading, documentations, and tutorials, check out our website!
-// https://ez-robotics.github.io/EZ-Template/
-/////
 
 // These are out of 127
 const int DRIVE_SPEED = 90;
 const int TURN_SPEED = 110;
 const int SWING_SPEED = 127;
 
-///
-// Constants
-///
 void default_constants() {
   // P, I, D, and Start I
   chassis.pid_drive_constants_set(4.9, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
@@ -37,8 +30,7 @@ void default_constants() {
   chassis.slew_drive_constants_set(3_in, 70);
   chassis.slew_swing_constants_set(3_in, 80);
 
-  // The amount that turns are prioritized over driving in odom motions
-  // - if you have tracking wheels, you can run this higher.  1.0 is the max
+  // The amount that turns are prioritized over driving in odom motions. 1.0 is the max
   chassis.odom_turn_bias_set(0.9);
 
   chassis.odom_look_ahead_set(7_in);           // This is how far ahead in the path the robot looks at
@@ -48,9 +40,6 @@ void default_constants() {
   chassis.pid_angle_behavior_set(ez::shortest);  // Changes the default behavior for turning, this defaults it to the shortest path there
 }
 
-///
-// Drive Example
-///
 void drive_example() {
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
@@ -67,9 +56,6 @@ void drive_example() {
   chassis.pid_wait();
 }
 
-///
-// Turn Example
-///
 void turn_example() {
   // The first parameter is the target in degrees
   // The second parameter is max speed the robot will drive at
@@ -84,9 +70,6 @@ void turn_example() {
   chassis.pid_wait();
 }
 
-///
-// Combining Turn + Drive
-///
 void drive_and_turn() {
   chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
   chassis.pid_wait();
@@ -104,9 +87,6 @@ void drive_and_turn() {
   chassis.pid_wait();
 }
 
-///
-// Wait Until and Changing Max Speed
-///
 void wait_until_change_speed() {
   // pid_wait_until will wait until the robot gets to a desired position
 
@@ -132,9 +112,6 @@ void wait_until_change_speed() {
   chassis.pid_wait();
 }
 
-///
-// Swing Example
-///
 void swing_example() {
   // The first parameter is ez::LEFT_SWING or ez::RIGHT_SWING
   // The second parameter is the target in degrees
@@ -154,9 +131,6 @@ void swing_example() {
   chassis.pid_wait();
 }
 
-///
-// Motion Chaining
-///
 void motion_chaining() {
   // Motion chaining is where motions all try to blend together instead of individual movements.
   // This works by exiting while the robot is still moving a little bit.
@@ -178,9 +152,6 @@ void motion_chaining() {
   chassis.pid_wait();
 }
 
-///
-// Auto that tests everything
-///
 void combining_movements() {
   chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
   chassis.pid_wait();
@@ -198,9 +169,6 @@ void combining_movements() {
   chassis.pid_wait();
 }
 
-///
-// Interference example
-///
 void tug(int attempts) {
   for (int i = 0; i < attempts - 1; i++) {
     // Attempt to drive backward
@@ -221,8 +189,6 @@ void tug(int attempts) {
   }
 }
 
-// If there is no interference, the robot will drive forward and turn 90 degrees.
-// If interfered, the robot will drive forward and then attempt to drive backward.
 void interfered_example() {
   chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
   chassis.pid_wait();
@@ -236,9 +202,6 @@ void interfered_example() {
   chassis.pid_wait();
 }
 
-///
-// Odom Drive PID
-///
 void odom_drive_example() {
   // This works the same as pid_drive_set, but it uses odom instead!
   // You can replace pid_drive_set with pid_odom_set and your robot will
@@ -254,9 +217,6 @@ void odom_drive_example() {
   chassis.pid_wait();
 }
 
-///
-// Odom Pure Pursuit
-///
 void odom_pure_pursuit_example() {
   // Drive to 0, 30 and pass through 6, 10 and 0, 20 on the way, with slew
   chassis.pid_odom_set({{{6_in, 10_in}, fwd, DRIVE_SPEED},
@@ -271,9 +231,6 @@ void odom_pure_pursuit_example() {
   chassis.pid_wait();
 }
 
-///
-// Odom Pure Pursuit Wait Until
-///
 void odom_pure_pursuit_wait_until_example() {
   chassis.pid_odom_set({{{0_in, 24_in}, fwd, DRIVE_SPEED},
                         {{12_in, 24_in}, fwd, DRIVE_SPEED},
@@ -285,9 +242,6 @@ void odom_pure_pursuit_wait_until_example() {
   // Intake.move(0);  // Turn the intake off
 }
 
-///
-// Odom Boomerang
-///
 void odom_boomerang_example() {
   chassis.pid_odom_set({{0_in, 24_in, 45_deg}, fwd, DRIVE_SPEED},
                        true);
@@ -298,9 +252,6 @@ void odom_boomerang_example() {
   chassis.pid_wait();
 }
 
-///
-// Odom Boomerang Injected Pure Pursuit
-///
 void odom_boomerang_injected_pure_pursuit_example() {
   chassis.pid_odom_set({{{0_in, 24_in, 45_deg}, fwd, DRIVE_SPEED},
                         {{12_in, 24_in}, fwd, DRIVE_SPEED},
@@ -313,9 +264,6 @@ void odom_boomerang_injected_pure_pursuit_example() {
   chassis.pid_wait();
 }
 
-///
-// Calculate the offsets of your tracking wheels
-///
 void measure_offsets() {
   // Number of times to test
   int iterations = 10;
@@ -373,388 +321,38 @@ void measure_offsets() {
   if (chassis.odom_tracker_front != nullptr) chassis.odom_tracker_front->distance_to_center_set(f_offset);
 }
 
-// . . .
-// Make your own autonomous functions here!
-// . . .
-
-
-
-void QuickLeft(){
-  ScoreSwitcher.set(true);
-  Hood.set(true);
-  Channel.move(127);
-  chassis.pid_drive_set(32.5_in,127);
-  pros::delay(900);
-  MatchLoader.set(true);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(550);
-  chassis.pid_drive_set(12.65,127);
-  pros::delay(1000);
-  chassis.pid_drive_set(-34_in,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(10.5_in,127);
-  pros::delay(850);
-  chassis.pid_turn_set(-135,110);
-  pros::delay(500);
-  MatchLoader.set(false);
-  chassis.pid_drive_set(-15.25_in,127);
-  pros::delay(800);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-22_in,127);
-
-
+void LeftSideAuton(){
 
 };
 
-void QuickRight(){
-  ScoreSwitcher.set(true);
-  Channel.move(127);
-  chassis.pid_drive_set(31_in,127);
-  pros::delay(1050);
-  MatchLoader.set(true);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(13.25,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-34_in,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(17.5_in,127);
-  pros::delay(850);
-  chassis.pid_turn_set(45,110);
-  pros::delay(550);
-  MatchLoader.set(false);
-  chassis.pid_drive_set(-21.3_in,127);
-  pros::delay(1000);
-  chassis.pid_turn_set(90,110);
-  pros::delay(600);
-  chassis.pid_drive_set(-23_in,127);
-
-
+void RightSideAuton(){
 
 };
 
-void Left(){
-  ScoreSwitcher.set(true);
-  Channel.move(127);
-  chassis.pid_turn_set(-21,110);
-  pros::delay(450);
-  chassis.pid_drive_set(37_in,127);
-  pros::delay(750);
-  MatchLoader.set(true);
-  pros::delay(300);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(350);
-  chassis.pid_turn_set(-145,110);
-  pros::delay(550);
-  chassis.pid_drive_set(38,127);
-  pros::delay(900);
-  chassis.pid_turn_set(-180,110);
-  pros::delay(500);
-  Hood.set(true);
-  chassis.pid_drive_set(-25,127);
-  pros::delay(800);
-  Lever.move_absolute(1000,127);
-  pros::delay(1600);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(32.5,127);
-  pros::delay(1300);
-  chassis.pid_drive_set(-33,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(10,127);
-  pros::delay(500);
-  chassis.pid_turn_set(135,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-17,127);
-  pros::delay(800);
-  chassis.pid_turn_set(180,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-20,127);
-  };
-
-void Right() {
-  ScoreSwitcher.set(true);
-  Channel.move(127);
-  chassis.pid_turn_set(21,110);
-  pros::delay(450);
-  chassis.pid_drive_set(34_in,127);
-  pros::delay(650);
-  MatchLoader.set(true);
-  pros::delay(300);
-  chassis.pid_turn_set(145,110);
-  pros::delay(550);
-  chassis.pid_drive_set(36,127);
-  pros::delay(880);
-  chassis.pid_turn_set(180,110);
-  pros::delay(500);
-  Hood.set(true);
-  chassis.pid_drive_set(-19,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(30.5,127);
-  pros::delay(1300);
-  chassis.pid_drive_set(-33,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(10,127);
-  pros::delay(500);
-  chassis.pid_turn_set(135,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-15.25_in,127);
-  pros::delay(800);
-  chassis.pid_turn_set(180,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-22_in,127);
-};
-
-void StatesSkills() {
-  ScoreSwitcher.set(true);
-  Channel.move(127);
-  chassis.pid_drive_set(32_in,127);
-  pros::delay(900);
-  MatchLoader.set(true);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(12.4,80);
-  pros::delay(2000);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-15,127);
-  pros::delay(700);
-  Channel.move(-127);
-  pros::delay(400);
-  Channel.move(127);
-  chassis.pid_turn_set(135,110);
-  pros::delay(550);
-  chassis.pid_drive_set(-17.5,127);
-  pros::delay(800);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-74_in,127);
-  pros::delay(1300);
-  chassis.pid_turn_set(180,110);
-  pros::delay(550);
-  chassis.pid_drive_set(11.4,127);
-  pros::delay(800);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-25,127);
-  pros::delay(750);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(5,127);
-  pros::delay(2000);
-  Hood.set(false);
-  chassis.pid_turn_set(-92,110);
-  pros::delay(500);
-  chassis.pid_drive_set(25.5,80);
-  pros::delay(2700);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-33,127);
-  pros::delay(800);
-  Channel.move(-127);
-  pros::delay(200);
-  Channel.move(127);
-  pros::delay(200);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(17,127);
-  pros::delay(800);
-  chassis.pid_turn_set(135,110);
-  pros::delay(600);
-  chassis.pid_drive_set(20,127);
-  pros::delay(900);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(67,127);
-  pros::delay(1200);
-  chassis.pid_turn_set(0,110);
-  pros::delay(500);
-  MatchLoader.set(false);
-  chassis.pid_drive_set(-33.8,127);
-  pros::delay(1000);
-  chassis.pid_turn_set(-90,127);
-  pros::delay(500);
-  chassis.pid_drive_set(-42,127);
-};
-
-void Skills(){
-  ScoreSwitcher.set(true);
-  Channel.move(127);
-  chassis.pid_drive_set(32_in,127);
-  pros::delay(900);
-  MatchLoader.set(true);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(11.7,80);
-  pros::delay(2000);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-15,127);
-  pros::delay(700);
-  chassis.pid_turn_set(135,110);
-  pros::delay(550);
-  chassis.pid_drive_set(-17.5,127);
-  pros::delay(800);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-74_in,127);
-  pros::delay(1300);
-  chassis.pid_turn_set(180,110);
-  pros::delay(550);
-  chassis.pid_drive_set(11.7,127);
-  pros::delay(800);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-25,127);
-  pros::delay(750);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(5,127);
-  pros::delay(650);
-  Hood.set(false);
-  chassis.pid_drive_set(25.5,80);
-  pros::delay(2700);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-33,127);
-  pros::delay(800);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  chassis.pid_drive_set(13,127);
-  pros::delay(650);
-  chassis.pid_turn_set(0,110);
-  pros::delay(500);
-  Channel.move(-127);
-  Hood.set(false);
-  chassis.pid_drive_set(-94,127);
-  pros::delay(1800);
-  Channel.move(127);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(17.5,127);
-  pros::delay(2700);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-15,127);
-  pros::delay(700);
-  chassis.pid_turn_set(-45,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-17.5,127);
-  pros::delay(800);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-74_in,127);
-  pros::delay(1300);
-  chassis.pid_turn_set(0,110);
-  pros::delay(550);
-  chassis.pid_drive_set(11.7,127);
-  pros::delay(800);
-  chassis.pid_turn_set(90,110);
-  pros::delay(500);
-  chassis.pid_drive_set(-25,127);
-  pros::delay(750);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);  
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  pros::delay(800);
-  chassis.pid_drive_set(5,127);
-  pros::delay(650);
-  Hood.set(false);
-  chassis.pid_drive_set(25.5,80);
-  pros::delay(2700);
-  chassis.pid_drive_set(-4,127);
-  pros::delay(500);
-  chassis.pid_drive_set(6.5,127);
-  pros::delay(900);
-  chassis.pid_drive_set(-33,127);
-  pros::delay(800);
-  Hood.set(true);
-  pros::delay(200);
-  Lever.move_absolute(800,127);
-  pros::delay(1200);
-  Lever.move_absolute(0,127);
-  MatchLoader.set(false);
-  chassis.pid_drive_set(13_in,127);
-  pros::delay(700);
-  chassis.pid_turn_set(0,110);
-  pros::delay(550);
-  chassis.pid_drive_set(45,127);
-  pros::delay(1200);
-  chassis.pid_turn_set(-90,110);
-  pros::delay(550);
-  chassis.pid_drive_set(-50,127);
-  };
-
-void If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp_because_winning_our_way_through_matches_is_pointless_with_people_like_riptide_and_bentc_against_us_and_oracle_btw(){
-  chassis.pid_drive_set(8.5_in,127);
-  Channel.move(127);
+void Skills() {
 
 };
 
+void AWPAuton(){
 
+};
 
+void TeammateAWP(){
 
+};
 
+void PIDDriveTest(){
 
+};
 
+void PIDTurnTest(){
 
-//                                                                                                                                                                                                                                                                                   None of you guys will see this because I am the only coder so I wanted to say I love you all and I will be secretly working on the notebook everyday of April and writing my pid testing autons. If you find this I will be astounded
+};
+
+void PIDOdomDriveTest(){
+
+};
+
+void PIDOdomBoomerangTest(){
+
+};
