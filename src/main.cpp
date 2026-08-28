@@ -47,7 +47,7 @@ void initialize() {
     //{"QuickRight", QuickRight},
     //{"StatesSkills", StatesSkills},
     //{"Skills", Skills},
-    //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp_because_winning_our_way_through_matches_is_pointless_with_people_like_riptide_and_bentc_against_us_and_oracle_btw}
+    //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp_because_winning_our_way_through_matches_is_pointless_with_people_like_riptide_and_bentc_against_us_and_oracle_btw_twin_vex_is_run_by_a_sexual_harasser_but_we_only_have_them_as_a_solution_for_robotics_this_year}
 });
 
   // Initialize chassis and auton selector
