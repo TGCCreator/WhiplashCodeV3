@@ -381,9 +381,10 @@ void PIDOdomBoomerangTest(){
 };"
 
 "void CAIMANRadiusChecker(){
+  bool closeEnough = False;
   double radius = 8.0;
-  if ((distance_from_start <= (radius*radius)) and timer <= 50){
-    chassis.pid_odom_set({0_in,0_in,0_degrees}, fwd, DRIVE_SPEED)
+  if ((distance_from_start <= (radius*radius)){
+    bool closeEnough = true;
   }
 
 };"
