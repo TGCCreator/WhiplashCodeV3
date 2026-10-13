@@ -357,7 +357,7 @@ void PIDOdomBoomerangTest(){
 
 };
 
-"void CAIMANTimerTest(){
+void CAIMANTimerTest(){
   int timer = 0; //accumulator variable
 
   for (int i = 1; i <= 10; i++) {
@@ -369,22 +369,47 @@ void PIDOdomBoomerangTest(){
 
   }
     
-};"
+};
 
-"void CAIMANDistanceMeasurer(){
-  horiz_tracker.reset()
-  vert_tracker.reset()
+void CAIMANDistanceMeasurer(){
+  horiz_tracker.reset();
+  vert_tracker.reset();
   double x = chassis.odom_x_get();
   double y = chassis.odom_y_get();
   double distance_from_start = sqrt(x*x + y*y);
 
-};"
+};
 
-"void CAIMANRadiusChecker(){
+void CAIMANRadiusChecker(){
   bool closeEnough = False;
   double radius = 8.0;
   if ((distance_from_start <= (radius*radius)){
     bool closeEnough = true;
   }
 
-};"
+};
+
+void CAIMANAlphaTest(){
+  //Distance Measurer Function
+  double x = chassis.odom_x_get();
+  double y = chassis.odom_y_get();
+  double distance_from_start = sqrt(x*x + y*y);
+
+  //Radius Checker Function
+  bool closeEnough = false;
+  double radius = 8.0;
+  if ((distance_from_start <= (radius*radius))){
+    bool closeEnough = true;
+  }
+
+  //Timer Function
+  int timer = 0; 
+    for(int i = 1; i <= 10; i++) {
+      timer += 1;
+      pros::delay(900);
+      if (timer == 8 && closeEnough == true){
+        chassis.pid_drive_set(24_in, fwd, DRIVE_SPEED);
+      }
+
+    }
+};
