@@ -372,8 +372,6 @@ void CAIMANTimerTest(){
 };
 
 void CAIMANDistanceMeasurer(){
-  horiz_tracker.reset();
-  vert_tracker.reset();
   double x = chassis.odom_x_get();
   double y = chassis.odom_y_get();
   double distance_from_start = sqrt(x*x + y*y);
@@ -390,6 +388,8 @@ void CAIMANRadiusChecker(){
 };
 
 void CAIMANAlphaTest(){
+  chassis.odom_xyt_set(24_in, 24_in, 0_deg);
+
   //Distance Measurer Function
   double x = chassis.odom_x_get();
   double y = chassis.odom_y_get();
@@ -397,7 +397,7 @@ void CAIMANAlphaTest(){
 
   //Radius Checker Function
   bool closeEnough = false;
-  double radius = 8.0;
+  double radius = 6.0;
   if ((distance_from_start <= (radius*radius))){
     bool closeEnough = true;
   }
@@ -408,7 +408,7 @@ void CAIMANAlphaTest(){
       timer += 1;
       pros::delay(900);
       if (timer == 8 && closeEnough == true){
-        chassis.pid_drive_set(24_in, fwd, DRIVE_SPEED);
+        chassis.pid_odom_set({{10_in, 10_in, 90_deg}, fwd, DRIVE_SPEED});
       }
 
     }
