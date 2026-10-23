@@ -1,7 +1,7 @@
 #include "main.h"
 
 ez::Drive chassis(
-    {-20, -15, -16}, // Left
+    {-1, -15, -16}, // Left
     {14, 12, 18}, // Right
 
     1,      // IMU
@@ -35,9 +35,7 @@ void initialize() {
 
   // Set the drive to your own constants from autons.cpp!
   default_constants();
-
-  // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
-
+  FourBar.set_brake_mode(MOTOR_BRAKE_HOLD);
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
@@ -190,5 +188,16 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+
+    if (master.get_digital(DIGITAL_L1)) {
+      FourBar.move(127);
+    } 
+    else if (master.get_digital(DIGITAL_L2)) {
+      FourBar.move(-127);
+    } 
+    else {
+      
+      FourBar.move(0);
+    }
   }
 }
