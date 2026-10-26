@@ -196,7 +196,6 @@ void opcontrol() {
       FourBar.move(-127);
     } 
     else {
-      
       FourBar.move(0);
     }
   }

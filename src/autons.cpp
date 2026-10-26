@@ -357,35 +357,35 @@ void PIDOdomBoomerangTest(){
 
 };
 
-void CAIMANTimerTest(){
-  int timer = 0; //accumulator variable
+// void CAIMANTimerTest(){
+//   int timer = 0; //accumulator variable
 
-  for (int i = 1; i <= 10; i++) {
-    timer += 1;
-    pros::delay(900);
-    if (timer == 7 && chassis == closeEnough){
-      chassis.pid_odom_set{{0_in,0_in,0_degrees}, fwd, DRIVE_SPEED}
-    }
+//   for (int i = 1; i <= 10; i++) {
+//     timer += 1;
+//     pros::delay(900);
+//     if (timer == 7 && chassis == closeEnough){
+//       chassis.pid_odom_set{{0_in,0_in,0_degrees}, fwd, DRIVE_SPEED}
+//     }
 
-  }
+//   }
     
-};
+// };
 
-void CAIMANDistanceMeasurer(){
-  double x = chassis.odom_x_get();
-  double y = chassis.odom_y_get();
-  double distance_from_start = sqrt(x*x + y*y);
+// void CAIMANDistanceMeasurer(){
+//   double x = chassis.odom_x_get();
+//   double y = chassis.odom_y_get();
+//   double distance_from_start = sqrt(x*x + y*y);
 
-};
+// };
 
-void CAIMANRadiusChecker(){
-  bool closeEnough = False;
-  double radius = 8.0;
-  if ((distance_from_start <= (radius*radius)){
-    bool closeEnough = true;
-  }
+// void CAIMANRadiusChecker(){
+//   bool closeEnough = False;
+//   double radius = 8.0;
+//   if ((distance_from_start <= (radius*radius)){
+//     bool closeEnough = true;
+//   }
 
-};
+// };
 
 void CAIMANAlphaTest(){
   chassis.odom_xyt_set(24_in, 24_in, 0_deg);
