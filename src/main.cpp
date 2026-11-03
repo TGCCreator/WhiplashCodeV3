@@ -1,10 +1,10 @@
 #include "main.h"
 
 ez::Drive chassis(
-    {-1, -15, -16}, // Left
+    {-20, -15, -16}, // Left
     {14, 12, 18}, // Right
 
-    1,      // IMU
+    13,      // IMU
     3.25, // Wheel Diameter
     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
