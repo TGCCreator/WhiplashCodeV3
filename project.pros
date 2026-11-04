@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Left Auton",
+    "project_name": "4-Bar Test",
     "target": "v5",
     "templates": {
       "EZ-Template": {

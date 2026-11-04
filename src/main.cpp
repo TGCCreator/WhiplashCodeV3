@@ -35,7 +35,6 @@ void initialize() {
 
   // Set the drive to your own constants from autons.cpp!
   default_constants();
-  FourBar.set_brake_mode(MOTOR_BRAKE_HOLD);
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
