@@ -197,5 +197,18 @@ void opcontrol() {
     else {
       FourBar.move(0);
     }
+
+    if (master.get_digital(DIGITAL_R1)) {
+      ClawRotation.move(127);
+    } 
+    else if (master.get_digital(DIGITAL_R2)) {
+      ClawRotation.move(-127);
+    } 
+    else {
+      ClawRotation.move(0);
+    }
+
+    Claw.button_toggle(master.get_digital(DIGITAL_A));
+
   }
 }

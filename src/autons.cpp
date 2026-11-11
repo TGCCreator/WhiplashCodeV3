@@ -42,6 +42,7 @@ void default_constants() {
 
   //Constants for motors
   FourBar.set_brake_mode(MOTOR_BRAKE_HOLD);
+  ClawRotation.set_brake_mode(MOTOR_BRAKE_HOLD);
 
 }
 
