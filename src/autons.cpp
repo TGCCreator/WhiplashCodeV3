@@ -8,6 +8,7 @@ const int SWING_SPEED = 127;
 
 void default_constants() {
   // P, I, D, and Start I
+  // Remember to change brainscreen.cpp for these values
   chassis.pid_drive_constants_set(4.9, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(6.5, 0.0, 0.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(1.2, 0, 0.0);     // Turn in place constants

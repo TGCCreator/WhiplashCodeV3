@@ -50,6 +50,12 @@ const RotCfg ROTATIONS[] = {
     {"HORIZONTAL", 9},
 };
 
+// Static PID values for the two odom controllers (mirror default_constants() in autons.cpp).
+// Update these by hand if you retune: pid_odom_angular_constants_set / pid_odom_boomerang_constants_set.
+struct Kpid { float kp, ki, kd; };
+constexpr Kpid ODOM_ANGULAR_PID = {0.1f, 0.0f, 0.0f};
+constexpr Kpid BOOMERANG_PID    = {1.0f, 0.0f, 32.5f};
+
 // Static odometry constants (mirror default_constants() in autons.cpp). Max 4 rows.
 // The tracker offsets are read live from the chassis, so they are not listed here.
 struct InfoRow { const char* label; const char* value; };
@@ -70,11 +76,18 @@ std::string first_line(const std::string& s) {
   return n == std::string::npos ? s : s.substr(0, n);
 }
 std::string auton_name(int i) { return first_line(ez::as::auton_selector.Autons[i].Name); }
-std::string auton_desc(int i) { return first_line(ez::as::auton_selector.Autons[i].Description); }
-int  auton_selected() { return ez::as::auton_selector.current_auton_page; }
+std::string auton_desc(int i) {
+  // This EZ version has no .Description, so use any text after the first newline of the name.
+  const std::string& n = ez::as::auton_selector.Autons[i].Name;
+  size_t p = n.find('\n');
+  if (p == std::string::npos) return "";
+  size_t q = n.find_first_not_of('\n', p);
+  return q == std::string::npos ? "" : first_line(n.substr(q));
+}
+int  auton_selected() { return ez::as::auton_selector.auton_page_current; }
 // Sets EZ's own selection index, so ez::as::auton_selector.call_selected_auton()
 // in autonomous() runs the routine shown on screen.
-void auton_select(int i) { ez::as::auton_selector.current_auton_page = i; }
+void auton_select(int i) { ez::as::auton_selector.auton_page_current = i; }
 
 struct Pose { float x, y, theta; };
 Pose  get_pose() { return {(float)chassis.odom_x_get(), (float)chassis.odom_y_get(), (float)chassis.odom_theta_get()}; }
@@ -87,14 +100,13 @@ void get_pid_rows(PidRow out[PID_ROWS]) {
   auto h  = chassis.pid_heading_constants_get();
   auto t  = chassis.pid_turn_constants_get();
   auto s  = chassis.pid_swing_constants_get();
-  auto oa = chassis.pid_odom_angular_constants_get();
-  auto ob = chassis.pid_odom_boomerang_constants_get();
   out[0] = {"DRIVE",     (float)d.kp,  (float)d.ki,  (float)d.kd,  (float)d.start_i};
   out[1] = {"HEADING",   (float)h.kp,  (float)h.ki,  (float)h.kd,  (float)h.start_i};
   out[2] = {"TURN",      (float)t.kp,  (float)t.ki,  (float)t.kd,  (float)t.start_i};
   out[3] = {"SWING",     (float)s.kp,  (float)s.ki,  (float)s.kd,  (float)s.start_i};
-  out[4] = {"ODOM ANG",  (float)oa.kp, (float)oa.ki, (float)oa.kd, (float)oa.start_i};
-  out[5] = {"BOOMERANG", (float)ob.kp, (float)ob.ki, (float)ob.kd, (float)ob.start_i};
+  // No getters exist for these two in your EZ version, so they come from the config above.
+  out[4] = {"ODOM ANG",  ODOM_ANGULAR_PID.kp, ODOM_ANGULAR_PID.ki, ODOM_ANGULAR_PID.kd, 0.0f};
+  out[5] = {"BOOMERANG", BOOMERANG_PID.kp,    BOOMERANG_PID.ki,    BOOMERANG_PID.kd,    0.0f};
 }
 
 // Live tracking-wheel offsets (distance to center), as set in main.cpp.
