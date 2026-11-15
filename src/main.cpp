@@ -1,4 +1,5 @@
 #include "main.h"
+#include "brainscreen.hpp"
 
 ez::Drive chassis(
     {-20, -15, -16}, // Left
@@ -41,13 +42,13 @@ void initialize() {
     //{"Left", Left},
     //{"Right", Right},
     //{"StatesSkills", StatesSkills},
-    //{"Skills", Skills},
+    {"Skills", Skills},
     //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp}
 });
 
   // Initialize chassis and auton selector
   chassis.initialize();
-  ez::as::initialize();
+  brain_ui::init();
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 }
 
