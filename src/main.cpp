@@ -11,7 +11,7 @@ ez::Drive chassis(
 
 // Making 8 and 9 negative will reverse the sensor
 // Port, Wheel Diameter, Distance to Center
-ez::tracking_wheel horiz_tracker(-9, 2, 2.5);  // Perpendicular
+ez::tracking_wheel horiz_tracker(-2, 2, 2.5);  // Perpendicular
 ez::tracking_wheel vert_tracker(17, 2, 0.5);   // Parallel
 
 void initialize() {

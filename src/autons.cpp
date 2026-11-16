@@ -328,11 +328,19 @@ void measure_offsets() {
   if (chassis.odom_tracker_front != nullptr) chassis.odom_tracker_front->distance_to_center_set(f_offset);
 }
 
-void LeftSideAuton(){
+void LeftSideStrip(){
 
 };
 
-void RightSideAuton(){
+void RightSideWithoutStrip(){
+
+};
+
+void RightSideStrip(){
+
+};
+
+void RightSideWithoutStrip(){
 
 };
 
