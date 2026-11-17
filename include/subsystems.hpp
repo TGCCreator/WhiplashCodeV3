@@ -7,8 +7,8 @@ extern Drive chassis;
 
 // Your motors, sensors, etc. should go here.  Below are examples
 
-inline pros::Motor ClawRotation(9);
+inline pros::Motor ClawRotation(2);
 
-inline pros::MotorGroup FourBar({-1,10});
+inline pros::MotorGroup FourBar({-1,13});
 
-inline ez::Piston Claw('C');
+inline ez::Piston Claw('A');

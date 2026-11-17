@@ -332,7 +332,7 @@ void LeftSideStrip(){
 
 };
 
-void RightSideWithoutStrip(){
+void LeftSideWithoutStrip(){
 
 };
 

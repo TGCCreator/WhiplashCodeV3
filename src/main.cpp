@@ -1,17 +1,17 @@
 #include "main.h"
-#include "brainscreen.hpp"
+
 
 ez::Drive chassis(
-    {-20, -15, -16}, // Left
-    {14, 12, 18}, // Right
+    {-10, -11}, // Left
+    {9, 12}, // Right
 
-    13,      // IMU
+    15,      // IMU
     3.25, // Wheel Diameter
     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
 // Making 8 and 9 negative will reverse the sensor
 // Port, Wheel Diameter, Distance to Center
-ez::tracking_wheel horiz_tracker(-2, 2, 2.5);  // Perpendicular
+ez::tracking_wheel horiz_tracker(-16, 2, 2.5);  // Perpendicular
 ez::tracking_wheel vert_tracker(17, 2, 0.5);   // Parallel
 
 void initialize() {
@@ -48,7 +48,7 @@ void initialize() {
 
   // Initialize chassis and auton selector
   chassis.initialize();
-  brain_ui::init();
+  ez::as::initialize();
   master.rumble(chassis.drive_imu_calibrated() ? "." : "---");
 }
 
