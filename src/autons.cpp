@@ -9,7 +9,7 @@ const int SWING_SPEED = 127;
 void default_constants() {
   // P, I, D, and Start I
   // Remember to change brainscreen.cpp for these values
-  chassis.pid_drive_constants_set(4.9, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_drive_constants_set(7, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(6.5, 0.0, 0.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(1.2, 0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(1.0, 0.0, 12.0);           // Swing constants
@@ -42,8 +42,8 @@ void default_constants() {
 
 
   //Constants for motors
-  FourBar.set_brake_mode(MOTOR_BRAKE_HOLD);
-  ClawRotation.set_brake_mode(MOTOR_BRAKE_HOLD);
+  FourBar.set_brake_mode_all(MOTOR_BRAKE_HOLD);
+  ClawRotation.set_brake_mode_all(MOTOR_BRAKE_HOLD);
 
 }
 
@@ -357,7 +357,7 @@ void TeammateAWP(){
 };
 
 void PIDDriveTest(){
-
+  chassis.pid_drive_set(24,60);
 };
 
 void PIDTurnTest(){

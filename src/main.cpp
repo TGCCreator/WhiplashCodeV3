@@ -2,17 +2,17 @@
 
 
 ez::Drive chassis(
-    {-10, -11}, // Left
-    {9, 12}, // Right
+    {-9, -12}, // Left
+    {10, 11}, // Right
 
-    15,      // IMU
-    3.25, // Wheel Diameter
+    6,      // IMU
+    2.75, // Wheel Diameter
     450);   // Wheel RPM = cartridge * (motor gear / wheel gear)
 
 // Making 8 and 9 negative will reverse the sensor
 // Port, Wheel Diameter, Distance to Center
-ez::tracking_wheel horiz_tracker(-16, 2, 2.5);  // Perpendicular
-ez::tracking_wheel vert_tracker(17, 2, 0.5);   // Parallel
+ez::tracking_wheel horiz_tracker(8, 2, 2.375);  // Perpendicular
+ez::tracking_wheel vert_tracker(7, 2, 3.625);   // Parallel
 
 void initialize() {
   // Print our branding over your terminal :D
@@ -42,7 +42,8 @@ void initialize() {
     //{"Left", Left},
     //{"Right", Right},
     //{"StatesSkills", StatesSkills},
-    {"Skills", Skills},
+    //{"Skills", Skills},
+    {"PIDTest", PIDDriveTest},
     //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp}
 });
 
@@ -180,6 +181,7 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   while (true) {
     ez_template_extras();
+  
 
     // chassis.opcontrol_tank();  // Tank
     chassis.opcontrol_arcade_standard(ez::SPLIT);   // Arcade
@@ -190,10 +192,10 @@ void opcontrol() {
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
 
     if (master.get_digital(DIGITAL_L1)) {
-      FourBar.move(127);
+      FourBar.move(-127);
     } 
     else if (master.get_digital(DIGITAL_L2)) {
-      FourBar.move(-127);
+      FourBar.move(127);
     } 
     else {
       FourBar.move(0);

@@ -9,6 +9,6 @@ extern Drive chassis;
 
 inline pros::Motor ClawRotation(2);
 
-inline pros::MotorGroup FourBar({-1,13});
+inline pros::MotorGroup FourBar({-1, 13});
 
 inline ez::Piston Claw('A');
