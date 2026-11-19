@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "PID Test",
+    "project_name": "Skills",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -424,7 +424,7 @@
       }
     },
     "upload_options": {
-      "description": "Right",
+      "description": "Autonomous Skills Route",
       "icon": "X",
       "slot": 1,
       "after": "none"

@@ -39,12 +39,14 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-    //{"Left", Left},
-    //{"Right", Right},
-    //{"StatesSkills", StatesSkills},
-    //{"Skills", Skills},
-    {"PIDTest", PIDDriveTest},
-    //{"AWP Teammate", If_they_have_an_AWP_which_wont_work_half_the_time_but_I_dont_care_atp}
+    //{"LeftStrip", LeftSideStrip},
+    //{"LeftNoStrip", LeftSideWithoutStrip},
+    //{"RightStrip", RightSideStrip},
+    //{"RightNoStrip", RightSideWithoutStrip},
+    {"Skills", Skills},
+    //{"SoloAWP", SoloAWP},
+    //{"AWP Teammate", TeammateAWP},
+    //{"PIDTest", PIDTest},
 });
 
   // Initialize chassis and auton selector
