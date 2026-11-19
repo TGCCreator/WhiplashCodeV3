@@ -345,10 +345,10 @@ void RightSideWithoutStrip(){
 };
 
 void Skills() {
-  FourBar.move_absolute(30,127);
-  pros::delay(700);
-  FourBar.move_absolute(500,127);
-  pros::delay(700);
+  FourBar.move_absolute(45,127);
+  pros::delay(7000);
+  FourBar.move_absolute(75,127);
+  pros::delay(7000);
   FourBar.move_absolute(0,127);
 
 };
