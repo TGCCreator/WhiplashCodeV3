@@ -1,9 +1,12 @@
 #include "main.h"
-
+  
+int goalHeights = 0;
+int drfourbstages = 0;
+bool robotmanual = true;
 
 ez::Drive chassis(
-    {-9, -12}, // Left
-    {10, 11}, // Right
+    {-10, -11}, // Left
+    {9, 12}, // Right
 
     6,      // IMU
     2.75, // Wheel Diameter
@@ -179,10 +182,31 @@ void ez_template_extras() {
   }
 }
 
+
+void FourBarStages() {
+  if (goalHeights == 0) {
+    if (drfourbstages = 0) {
+      drfourb.move_absolute(100,127);
+      ClawRotation.move_absolute(650,127);
+    }
+
+    
+  }
+
+
+
+}
+
+
+
 void opcontrol() {
+  int x = 0;
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   while (true) {
     ez_template_extras();
+    if (robotmanual == false){
+      FourBarStages();
+    }
   
 
     // chassis.opcontrol_tank();  // Tank
@@ -192,16 +216,19 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
-
-    if (master.get_digital(DIGITAL_L1)) {
-      FourBar.move(-127);
-    } 
-    else if (master.get_digital(DIGITAL_L2)) {
-      FourBar.move(127);
-    } 
-    else {
-      FourBar.move(0);
+    if (robotmanual == true) {
+      if (master.get_digital(DIGITAL_L1)) {
+        drfourb.move(-127);
+      } 
+      else if (master.get_digital(DIGITAL_L2)) {
+        drfourb.move(127);
+      } 
+      else {
+        drfourb.move(0);
+      }
     }
+
+    Claw.button_toggle(master.get_digital(DIGITAL_Y));
 
     if (master.get_digital(DIGITAL_R1)) {
       ClawRotation.move(127);
@@ -210,10 +237,36 @@ void opcontrol() {
       ClawRotation.move(-127);
     } 
     else {
-      ClawRotation.move(0);
+      if (master.get_digital(DIGITAL_UP)) {
+          ClawRotation.move_absolute(650,127);
+       }
+       
+      else {
+        ClawRotation.move(0);
+      }
     }
 
-    Claw.button_toggle(master.get_digital(DIGITAL_A));
+    if (master.get_digital(DIGITAL_DOWN)) {
+      if (robotmanual == true){
+        robotmanual = false;
+      }
+      else {
+        robotmanual = true;
+      }
+      
+    }
 
+    if (master.get_digital(DIGITAL_LEFT)) {
+      goalHeights += 1;
+    }
+
+    if (master.get_digital(DIGITAL_RIGHT)) {
+      drfourbstages += 1;
+    }
+
+    
   }
+
+
 }
+

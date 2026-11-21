@@ -11,7 +11,7 @@ void default_constants() {
   // Remember to change brainscreen.cpp for these values
   chassis.pid_drive_constants_set(7, 0.0, 0.0);        // Fwd/rev constants, used for odom and non odom motions
   chassis.pid_heading_constants_set(6.5, 0.0, 0.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(1.91, 0, 0.0);     // Turn in place constants
+  chassis.pid_turn_constants_set(1.54, 0, 0.0);     // Turn in place constants
   chassis.pid_swing_constants_set(1.0, 0.0, 12.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(0.1, 0.0, 0);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(1, 0.0, 32.5);  // Angular control for boomerang motions
@@ -42,7 +42,7 @@ void default_constants() {
 
 
   //Constants for motors
-  FourBar.set_brake_mode_all(MOTOR_BRAKE_HOLD);
+  drfourb.set_brake_mode_all(MOTOR_BRAKE_HOLD);
   ClawRotation.set_brake_mode_all(MOTOR_BRAKE_HOLD);
 
 }
@@ -345,12 +345,7 @@ void RightSideWithoutStrip(){
 };
 
 void Skills() {
-  FourBar.move_absolute(45,127);
-  pros::delay(7000);
-  FourBar.move_absolute(75,127);
-  pros::delay(7000);
-  FourBar.move_absolute(0,127);
-
+  chassis.pid_turn_set(90,127);
 };
 
 void AWPAuton(){
