@@ -42,7 +42,7 @@ void default_constants() {
 
 
   //Constants for motors
-  drfourb.set_brake_mode_all(MOTOR_BRAKE_HOLD);
+  dr4b.set_brake_mode_all(MOTOR_BRAKE_HOLD);
   ClawRotation.set_brake_mode_all(MOTOR_BRAKE_HOLD);
 
 }
@@ -345,7 +345,50 @@ void RightSideWithoutStrip(){
 };
 
 void Skills() {
-  chassis.pid_turn_set(90,127);
+  //Insert toggle code here
+  //chassis.pid_drive_set(-15,127);
+  //pros::delay(900);
+  //chassis.pid_turn_set(-90,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(8,127);
+  //pros::delay(600);
+  //Insert scoring code here
+  //chassis.pid_drive_set(-8,127);
+  //pros::delay(600);
+  //chassis.pid_turn_set(-135,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(15,127);
+  //pros::delay(900);
+  //Insert clamp code here
+  //chassis.pid_turn_set(-45,127);
+  //pros::delay(500);
+  //Insert scoring code, drive forward 2 inches
+  //chassis.pid_drive_set(-2,127);
+  //pros::delay(500);
+  //chassis.pid_turn_set(-82,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(21,127);
+  //pros::delay(1100);
+  //chassis.pid_turn_set(-47,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(2,127);
+  //Insert clamp code here
+  //chassis.pid_turn_set(50,127);
+  //pros::delay(500);
+  //Insert scoring code here
+  //chassis.pid_turn_set(0,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(18,127);
+  //pros::delay(1100);
+  //chassis.pid_turn_set(55,127);
+  //pros::delay(500);
+  //chassis.pid_drive_set(2,127);
+  //pros::delay(500);
+  //Insert clamp code here
+  //chassis.pid_turn_set(130,127);
+  //pros::delay(500);
+  //Insert scoring code here
+
 };
 
 void AWPAuton(){

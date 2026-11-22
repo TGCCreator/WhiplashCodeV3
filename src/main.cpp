@@ -1,7 +1,7 @@
 #include "main.h"
   
 int goalHeights = 0;
-int drfourbstages = 0;
+int dr4bstages = 0;
 bool robotmanual = true;
 
 ez::Drive chassis(
@@ -183,10 +183,25 @@ void ez_template_extras() {
 }
 
 
+void dr4bPIDTask() {
+    while (true) {
+        double out = dr4bPID.compute(
+            dr4bRotation.get_position() / 100.0
+        );
+
+        out = std::clamp(out, -127.0, 127.0);
+
+        dr4b.move(out);
+
+        pros::delay(ez::util::DELAY_TIME);
+    }
+}
+
+
 void FourBarStages() {
   if (goalHeights == 0) {
-    if (drfourbstages = 0) {
-      drfourb.move_absolute(100,127);
+    if (dr4bstages == 0) {
+      dr4b.move_absolute(100,127);
       ClawRotation.move_absolute(650,127);
     }
 
@@ -196,7 +211,6 @@ void FourBarStages() {
 
 
 }
-
 
 
 void opcontrol() {
@@ -218,13 +232,13 @@ void opcontrol() {
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
     if (robotmanual == true) {
       if (master.get_digital(DIGITAL_L1)) {
-        drfourb.move(-127);
+        dr4b.move(-127);
       } 
       else if (master.get_digital(DIGITAL_L2)) {
-        drfourb.move(127);
+        dr4b.move(127);
       } 
       else {
-        drfourb.move(0);
+        dr4b.move(0);
       }
     }
 
@@ -241,7 +255,7 @@ void opcontrol() {
           ClawRotation.move_absolute(650,127);
        }
        
-      else {
+      else if (robotmanual == true) {
         ClawRotation.move(0);
       }
     }
@@ -261,7 +275,7 @@ void opcontrol() {
     }
 
     if (master.get_digital(DIGITAL_RIGHT)) {
-      drfourbstages += 1;
+      dr4bstages += 1;
     }
 
     

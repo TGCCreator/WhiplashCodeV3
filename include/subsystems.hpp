@@ -9,6 +9,8 @@ extern Drive chassis;
 
 inline pros::Motor ClawRotation(21);
 
-inline pros::MotorGroup drfourb({-1, 13});
+inline pros::MotorGroup dr4b({-1, 13});
+inline pros::Rotation dr4bRotation(5);
+inline ez::PID dr4bPID{1, 0, 4, 100, "dr4b"};
 
 inline ez::Piston Claw('A');
