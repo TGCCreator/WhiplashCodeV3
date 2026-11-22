@@ -14,3 +14,7 @@ inline pros::Rotation dr4bRotation(5);
 inline ez::PID dr4bPID{1, 0, 4, 100, "dr4b"};
 
 inline ez::Piston Claw('A');
+
+void dr4b_set(double target);
+void dr4b_wait(double tolerance = 3, int timeout_ms = 2000);
+double dr4b_pos();
