@@ -8,16 +8,34 @@
 // ---------------------------------------------------------------------------
 int dr4bstages = 0;
 bool robotmanual = true;
+const double dr4b_KG = 8; //Gravity compensation variable (Tunable)
 
-// DR4B PID state
+const double KG_HEIGHTS[] = {0, 15, 30, 45, 60, 70};
+const double KG_VALUES[] = {12, 10, 6, 4, 3, 2};
+const int KG_N = sizeof(KG_HEIGHTS) / sizeof(KG_HEIGHTS[0]);
+
+double dr4b_kg(double pos) {
+  if (pos <= KG_HEIGHTS[0]) return KG_VALUES[0];
+  if (pos >= KG_HEIGHTS[KG_N -1]) return KG_VALUES[KG_N - 1];
+  for (int i = 0; i < KG_N - 1; i++) {
+    if (pos <= KG_HEIGHTS[i + 1]) {
+        double t = (pos - KG_HEIGHTS[i + 1]) / (KG_HEIGHTS[i + 1] - KG_HEIGHTS[i]);
+        return KG_VALUES[i] + t * (KG_VALUES[i + 1] - KG_VALUES[i]);
+    }
+
+  }
+  return KG_VALUES[KG_N - 1];
+}
+
+// dr4b PID state
 bool dr4bPIDEnabled = false;
 bool dr4bManualHeld = false;
 bool clawManualHeld = false;
 
 // Stage heights in DEGREES of the rotation sensor (0 = fully down).
 // MEASURE THESE: move the lift by hand to each height and read dr4b_pos().
-const double DR4B_STAGES[] = {0, 60, 110, 150};
-const int DR4B_NUM_STAGES = sizeof(DR4B_STAGES) / sizeof(DR4B_STAGES[0]);
+const double dr4b_STAGES[] = {0, 15, 30, 45, 60, 70};
+const int dr4b_NUM_STAGES = sizeof(dr4b_STAGES) / sizeof(dr4b_STAGES[0]);
 
 ez::Drive chassis(
     {-10, -11},  // Left
@@ -33,7 +51,7 @@ ez::tracking_wheel horiz_tracker(8, 2, 2.375);  // Perpendicular
 ez::tracking_wheel vert_tracker(7, 2, 3.625);   // Parallel
 
 // ---------------------------------------------------------------------------
-// DR4B helper functions (declared in subsystems.hpp so autons.cpp can use them)
+// dr4b helper functions (declared in subsystems.hpp so autons.cpp can use them)
 // ---------------------------------------------------------------------------
 
 // Rotation sensor reports centidegrees -> convert to degrees
@@ -58,16 +76,18 @@ void dr4b_wait(double tolerance, int timeout_ms) {
 
 // Background task: runs the PID whenever it is enabled
 void dr4bPIDTask() {
-  pros::delay(2000);  // let everything finish initializing
+  pros::delay(1000);  // let everything finish initializing
   while (true) {
     if (dr4bPIDEnabled) {
-      double out = dr4bPID.compute(dr4b_pos());
+      double pos = dr4b_pos();
+      double kg = dr4b_kg(pos);
 
-      // Optional gravity feedforward: uncomment and tune if the lift is slow going up
-      // if (dr4bPID.target_get() > dr4b_pos()) out += 8;
+      if (dr4bPID.target_get() < pos - 3) kg *= 0.3;
 
-      out = std::clamp(out, -127.0, 127.0);
-      dr4b.move(out);
+      double out = dr4bPID.compute(dr4b_pos()) + kg;
+
+      out = std::clamp(out, -80.0, 80.0);
+      dr4b.move(-out);
     }
     pros::delay(ez::util::DELAY_TIME);
   }
@@ -95,7 +115,7 @@ void initialize() {
   // Set the drive to your own constants from autons.cpp!
   default_constants();
 
-  // ---- DR4B + claw setup ----
+  // ---- dr4b + claw setup ----
   dr4b.set_brake_mode(MOTOR_BRAKE_HOLD);
   ClawRotation.set_brake_mode(MOTOR_BRAKE_HOLD);
 
@@ -103,10 +123,6 @@ void initialize() {
   // If positive motor power makes dr4b_pos() go DOWN, uncomment the next line (before the reset).
   // dr4bRotation.set_reversed(true);
   dr4bRotation.reset_position();
-
-  // dr4bPID constants live in subsystems.hpp ({kP, kI, kD, start_I}).
-  // To change them here instead: dr4bPID.constants_set(1.0, 0.0, 4.0, 5.0);
-  dr4b_set(0);  // hold the bottom position at startup
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
@@ -247,17 +263,17 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped Arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
 
-    // ---- DR4B: toggle manual / staged mode ----
+    // ---- dr4b: toggle manual / staged mode ----
     if (master.get_digital_new_press(DIGITAL_DOWN)) {
       robotmanual = !robotmanual;
       dr4bManualHeld = false;
       dr4b_set(dr4b_pos());  // hold where we are so nothing jumps
       // Re-sync the stage counter to the closest stage
-      double best = fabs(dr4b_pos() - DR4B_STAGES[0]);
+      double best = fabs(dr4b_pos() - dr4b_STAGES[0]);
       dr4bstages = 0;
-      for (int i = 1; i < DR4B_NUM_STAGES; i++) {
-        if (fabs(dr4b_pos() - DR4B_STAGES[i]) < best) {
-          best = fabs(dr4b_pos() - DR4B_STAGES[i]);
+      for (int i = 1; i < dr4b_NUM_STAGES; i++) {
+        if (fabs(dr4b_pos() - dr4b_STAGES[i]) < best) {
+          best = fabs(dr4b_pos() - dr4b_STAGES[i]);
           dr4bstages = i;
         }
       }
@@ -279,13 +295,13 @@ void opcontrol() {
       }
     } else {
       // Staged control: Right = next stage up, Left = next stage down
-      if (master.get_digital_new_press(DIGITAL_RIGHT) && dr4bstages < DR4B_NUM_STAGES - 1) {
+      if (master.get_digital_new_press(DIGITAL_RIGHT) && dr4bstages < dr4b_NUM_STAGES - 1) {
         dr4bstages++;
-        dr4b_set(DR4B_STAGES[dr4bstages]);
+        dr4b_set(dr4b_STAGES[dr4bstages]);
       }
       if (master.get_digital_new_press(DIGITAL_LEFT) && dr4bstages > 0) {
         dr4bstages--;
-        dr4b_set(DR4B_STAGES[dr4bstages]);
+        dr4b_set(dr4b_STAGES[dr4bstages]);
       }
     }
 
