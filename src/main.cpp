@@ -8,21 +8,23 @@
 // ---------------------------------------------------------------------------
 int dr4bstages = 0;
 bool robotmanual = true;
-const double dr4b_KG = 8; //Gravity compensation variable (Tunable)
 
+// Gravity compensation (power) at several lift heights (degrees). TUNE THESE.
+// NOTE: the old interpolation had a bug that made these act ~2x stronger in the
+// middle of the range, so your old tuning will need a re-check.
 const double KG_HEIGHTS[] = {0, 15, 30, 45, 60, 70};
 const double KG_VALUES[] = {12, 10, 6, 4, 3, 2};
 const int KG_N = sizeof(KG_HEIGHTS) / sizeof(KG_HEIGHTS[0]);
 
 double dr4b_kg(double pos) {
   if (pos <= KG_HEIGHTS[0]) return KG_VALUES[0];
-  if (pos >= KG_HEIGHTS[KG_N -1]) return KG_VALUES[KG_N - 1];
+  if (pos >= KG_HEIGHTS[KG_N - 1]) return KG_VALUES[KG_N - 1];
   for (int i = 0; i < KG_N - 1; i++) {
     if (pos <= KG_HEIGHTS[i + 1]) {
-        double t = (pos - KG_HEIGHTS[i + 1]) / (KG_HEIGHTS[i + 1] - KG_HEIGHTS[i]);
-        return KG_VALUES[i] + t * (KG_VALUES[i + 1] - KG_VALUES[i]);
+      // FIXED: was (pos - KG_HEIGHTS[i + 1]); the fraction must start from the LOWER point
+      double t = (pos - KG_HEIGHTS[i]) / (KG_HEIGHTS[i + 1] - KG_HEIGHTS[i]);
+      return KG_VALUES[i] + t * (KG_VALUES[i + 1] - KG_VALUES[i]);
     }
-
   }
   return KG_VALUES[KG_N - 1];
 }
@@ -30,7 +32,13 @@ double dr4b_kg(double pos) {
 // dr4b PID state
 bool dr4bPIDEnabled = false;
 bool dr4bManualHeld = false;
+bool dr4bSettling = false;
+int dr4bSettleTimer = 0;
 bool clawManualHeld = false;
+
+// Sensor health
+bool dr4bSensorOK = true;
+double dr4bLastPos = 0;
 
 // Stage heights in DEGREES of the rotation sensor (0 = fully down).
 // MEASURE THESE: move the lift by hand to each height and read dr4b_pos().
@@ -54,9 +62,19 @@ ez::tracking_wheel vert_tracker(7, 2, 3.625);   // Parallel
 // dr4b helper functions (declared in subsystems.hpp so autons.cpp can use them)
 // ---------------------------------------------------------------------------
 
-// Rotation sensor reports centidegrees -> convert to degrees
+// Rotation sensor reports centidegrees -> convert to degrees.
+// If the sensor read FAILS, PROS returns PROS_ERR (about 2.1 billion). Dividing that by 100
+// gives ~21474836, which the PID would treat as a gigantic error and drive the lift at full
+// speed. So we reject bad readings and remember the last good one.
 double dr4b_pos() {
-  return dr4bRotation.get_position() / 100.0;
+  int32_t raw = dr4bRotation.get_position();
+  if (raw == PROS_ERR || std::abs(raw) > 100000) {  // 100000 centidegrees = 1000 degrees, far past the lift's range
+    dr4bSensorOK = false;
+    return dr4bLastPos;
+  }
+  dr4bSensorOK = true;
+  dr4bLastPos = raw / 100.0;
+  return dr4bLastPos;
 }
 
 // Set a new lift target (in degrees) and turn the PID on
@@ -80,14 +98,23 @@ void dr4bPIDTask() {
   while (true) {
     if (dr4bPIDEnabled) {
       double pos = dr4b_pos();
-      double kg = dr4b_kg(pos);
 
-      if (dr4bPID.target_get() < pos - 3) kg *= 0.3;
+      if (!dr4bSensorOK) {
+        // Lost the sensor: don't guess, just hold
+        dr4b.brake();
+      } else if (dr4bPID.target_get() <= 2 && pos <= 4) {
+        // Parked at the bottom: stop pushing into the hard stop
+        dr4b.brake();
+      } else {
+        double kg = dr4b_kg(pos);
 
-      double out = dr4bPID.compute(dr4b_pos()) + kg;
+        // Gravity helps on the way down, so don't fight the descent with full kG
+        if (dr4bPID.target_get() < pos - 3) kg *= 0.3;
 
-      out = std::clamp(out, -80.0, 80.0);
-      dr4b.move(-out);
+        double out = dr4bPID.compute(pos) + kg;
+        out = std::clamp(out, -80.0, 80.0);
+        dr4b.move(-out);  // negative = up on this robot
+      }
     }
     pros::delay(ez::util::DELAY_TIME);
   }
@@ -119,9 +146,8 @@ void initialize() {
   dr4b.set_brake_mode(MOTOR_BRAKE_HOLD);
   ClawRotation.set_brake_mode(MOTOR_BRAKE_HOLD);
 
-  // IMPORTANT: the lift must be fully down when the code starts so 0 = bottom.
-  // If positive motor power makes dr4b_pos() go DOWN, uncomment the next line (before the reset).
-  // dr4bRotation.set_reversed(true);
+  // IMPORTANT: the lift must be fully down on its hard stop when the code starts so 0 = bottom.
+  // (You can also re-zero any time in driver control: rest the lift on the stop and press B.)
   dr4bRotation.reset_position();
 
   // Autonomous Selector using LLEMU
@@ -261,12 +287,24 @@ void opcontrol() {
     chassis.opcontrol_arcade_standard(ez::SPLIT);  // Arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Halo
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped Arcade
-    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped Halo
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped Halo
+
+    // ---- dr4b: re-zero (rest the lift fully down on its stop, then press B) ----
+    if (master.get_digital_new_press(DIGITAL_B)) {
+      dr4bRotation.reset_position();
+      dr4bLastPos = 0;
+      dr4bstages = 0;
+      dr4bSettling = false;
+      dr4bManualHeld = false;
+      dr4b_set(0);
+      master.rumble(".");
+    }
 
     // ---- dr4b: toggle manual / staged mode ----
     if (master.get_digital_new_press(DIGITAL_DOWN)) {
       robotmanual = !robotmanual;
       dr4bManualHeld = false;
+      dr4bSettling = false;
       dr4b_set(dr4b_pos());  // hold where we are so nothing jumps
       // Re-sync the stage counter to the closest stage
       double best = fabs(dr4b_pos() - dr4b_STAGES[0]);
@@ -280,19 +318,35 @@ void opcontrol() {
     }
 
     if (robotmanual) {
-      // Manual control: PID is off while a button is held, then holds the new height on release
+      // Manual control: PID is off while a button is held
       if (master.get_digital(DIGITAL_L1)) {
         dr4bPIDEnabled = false;
+        dr4bSettling = false;
         dr4b.move(-127);
         dr4bManualHeld = true;
       } else if (master.get_digital(DIGITAL_L2)) {
         dr4bPIDEnabled = false;
+        dr4bSettling = false;
         dr4b.move(127);
         dr4bManualHeld = true;
       } else if (dr4bManualHeld) {
+        // Just let go: brake and wait for the lift to stop before the PID takes over
         dr4bManualHeld = false;
-        dr4b_set(dr4b_pos());
+        dr4bPIDEnabled = false;
+        dr4b.brake();
+        dr4bSettling = true;
+        dr4bSettleTimer = 0;
       }
+
+      if (dr4bSettling) {
+        dr4bSettleTimer += ez::util::DELAY_TIME;
+        // velocity is in centidegrees/sec, so 500 = 5 deg/sec
+        if (fabs(dr4bRotation.get_velocity()) < 500 || dr4bSettleTimer >= 300) {
+        dr4bSettling = false;
+        double p = dr4b_pos();
+        if (dr4bSensorOK) dr4b_set(p);
+  }
+}
     } else {
       // Staged control: Right = next stage up, Left = next stage down
       if (master.get_digital_new_press(DIGITAL_RIGHT) && dr4bstages < dr4b_NUM_STAGES - 1) {
@@ -325,8 +379,10 @@ void opcontrol() {
     }
 
     // ---- Controller debug print (every ~200 ms, only off-field) ----
+    // p = lift position, t = target, ERR = the rotation sensor read failed.
+    // Kept under 15 characters because the controller screen truncates longer lines.
     if (!pros::competition::is_connected() && ++printCounter % 20 == 0) {
-      master.print(0, 0, "dr4b %.1f tgt %.1f   ", dr4b_pos(), dr4bPID.target_get());
+      master.print(0, 0, "p%.1f t%.1f %s    ", dr4b_pos(), dr4bPID.target_get(), dr4bSensorOK ? "" : "ERR");
     }
 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
