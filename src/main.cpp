@@ -8,12 +8,10 @@
 // ---------------------------------------------------------------------------
 int dr4bstages = 0;
 bool robotmanual = true;
+const bool dr4b_sensor_test = false; //testing variable
 
-// Gravity compensation (power) at several lift heights (degrees). TUNE THESE.
-// NOTE: the old interpolation had a bug that made these act ~2x stronger in the
-// middle of the range, so your old tuning will need a re-check.
 const double KG_HEIGHTS[] = {0, 15, 30, 45, 60, 70};
-const double KG_VALUES[] = {12, 10, 6, 4, 3, 2};
+const double KG_VALUES[] = {-8, -6, -4, -3, -2, -1};
 const int KG_N = sizeof(KG_HEIGHTS) / sizeof(KG_HEIGHTS[0]);
 
 double dr4b_kg(double pos) {
@@ -21,7 +19,6 @@ double dr4b_kg(double pos) {
   if (pos >= KG_HEIGHTS[KG_N - 1]) return KG_VALUES[KG_N - 1];
   for (int i = 0; i < KG_N - 1; i++) {
     if (pos <= KG_HEIGHTS[i + 1]) {
-      // FIXED: was (pos - KG_HEIGHTS[i + 1]); the fraction must start from the LOWER point
       double t = (pos - KG_HEIGHTS[i]) / (KG_HEIGHTS[i + 1] - KG_HEIGHTS[i]);
       return KG_VALUES[i] + t * (KG_VALUES[i + 1] - KG_VALUES[i]);
     }
@@ -96,12 +93,13 @@ void dr4b_wait(double tolerance, int timeout_ms) {
 void dr4bPIDTask() {
   pros::delay(1000);  // let everything finish initializing
   while (true) {
-    if (dr4bPIDEnabled) {
+    if (dr4bPIDEnabled && !dr4b_sensor_test) {
       double pos = dr4b_pos();
 
       if (!dr4bSensorOK) {
         // Lost the sensor: don't guess, just hold
         dr4b.brake();
+        dr4bPIDEnabled = false;
       } else if (dr4bPID.target_get() <= 2 && pos <= 4) {
         // Parked at the bottom: stop pushing into the hard stop
         dr4b.brake();
@@ -112,7 +110,7 @@ void dr4bPIDTask() {
         if (dr4bPID.target_get() < pos - 3) kg *= 0.3;
 
         double out = dr4bPID.compute(pos) + kg;
-        out = std::clamp(out, -80.0, 80.0);
+        out = std::clamp(out, -127.0, 127.0);
         dr4b.move(-out);  // negative = up on this robot
       }
     }
@@ -282,7 +280,7 @@ void opcontrol() {
 
   while (true) {
     ez_template_extras();
-
+    //fortnite.Pirate_Token:Ahhhh,almost...almost
     // chassis.opcontrol_tank();  // Tank
     chassis.opcontrol_arcade_standard(ez::SPLIT);  // Arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Halo
@@ -296,6 +294,7 @@ void opcontrol() {
       dr4bstages = 0;
       dr4bSettling = false;
       dr4bManualHeld = false;
+      dr4bSensorOK = true;
       dr4b_set(0);
       master.rumble(".");
     }
@@ -318,7 +317,6 @@ void opcontrol() {
     }
 
     if (robotmanual) {
-      // Manual control: PID is off while a button is held
       if (master.get_digital(DIGITAL_L1)) {
         dr4bPIDEnabled = false;
         dr4bSettling = false;

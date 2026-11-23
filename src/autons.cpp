@@ -346,19 +346,35 @@ void RightSideWithoutStrip(){
 
 void Skills() {
   //Insert toggle code here
-  //chassis.pid_drive_set(-15,127);
-  //pros::delay(900);
-  //chassis.pid_turn_set(-90,127);
-  //pros::delay(500);
-  //chassis.pid_drive_set(8,127);
-  //pros::delay(600);
-  //Insert scoring code here
-  //chassis.pid_drive_set(-8,127);
-  //pros::delay(600);
-  //chassis.pid_turn_set(-135,127);
-  //pros::delay(500);
-  //chassis.pid_drive_set(15,127);
-  //pros::delay(900);
+  chassis.pid_drive_set(16,127);
+  pros::delay(900);
+  ClawRotation.move_absolute(790,127);
+  chassis.pid_turn_set(88,127);
+  pros::delay(600);
+  chassis.pid_drive_set(9.5,127);
+  pros::delay(700);
+  Claw.set(true);
+  pros::delay(600);
+  chassis.pid_drive_set(-10,127);
+  pros::delay(700);
+  chassis.pid_turn_set(176,127);
+  pros::delay(500);
+  dr4b.move_absolute(dr4bPID.compute(21),127);
+  pros::delay(500);
+  chassis.pid_drive_set(17,127);
+  pros::delay(900);
+  dr4b.move_absolute(dr4bPID.compute(17),127);
+  ClawRotation.move_absolute(700,127);
+  pros::delay(700);
+  chassis.pid_drive_set(-17,127);
+  pros::delay(900);
+  dr4b.move_absolute(dr4bPID.compute(0),127);
+  pros::delay(600);
+  chassis.pid_turn_set(45,127);
+  pros::delay(600);
+  chassis.pid_drive_set(20,80);
+  pros::delay(1100);
+  Claw.set(false);
   //Insert clamp code here
   //chassis.pid_turn_set(-45,127);
   //pros::delay(500);
