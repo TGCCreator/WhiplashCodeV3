@@ -11,7 +11,7 @@ bool robotmanual = true;
 const bool dr4b_sensor_test = false; //testing variable
 
 const double KG_HEIGHTS[] = {0, 15, 30, 45, 60, 70};
-const double KG_VALUES[] = {-8, -6, -4, -3, -2, -1};
+const double KG_VALUES[] = {0, 0, 0, 0, 0, 0};
 const int KG_N = sizeof(KG_HEIGHTS) / sizeof(KG_HEIGHTS[0]);
 
 double dr4b_kg(double pos) {
@@ -76,6 +76,12 @@ double dr4b_pos() {
 
 // Set a new lift target (in degrees) and turn the PID on
 void dr4b_set(double target) {
+  if (!dr4bPIDEnabled) {
+    // PID was off: flush stale state by running one zero-error compute
+    double p = dr4b_pos();
+    dr4bPID.target_set(p);
+    dr4bPID.compute(p);   // result is thrown away
+  }
   dr4bPID.target_set(target);
   dr4bPIDEnabled = true;
 }
